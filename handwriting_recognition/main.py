@@ -96,7 +96,7 @@ def extract_features(img):
 """
 
 
-def run_svm(train_path, test_path):
+def test_classifiers(train_path, test_path):
 
     myfeat_train = list()
     mylabel_train = list()
@@ -237,7 +237,7 @@ def main():
     train_path = join(current, 'dataset/train/')
     test_path = join(current, 'dataset/test/')
 
-    run_svm(train_path, test_path)
+    test_classifiers(train_path, test_path)
 
     return 0
 
