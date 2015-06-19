@@ -34,25 +34,21 @@ import os
 from os.path import join
 import time
 from skimage import io
-from skimage.feature import local_binary_pattern # Local binary pattern
 import numpy as np
 from matplotlib import pyplot as plt
-from sklearn import svm, metrics, cross_validation
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.naive_bayes import GaussianNB
+from sklearn.svm import LinearSVC
 from sklearn import tree
-from sklearn.neighbors import KNeighborsClassifier
 from sklearn.dummy import DummyClassifier
 from prettytable import PrettyTable
+
+from tools.features import LBPUFeatures, LBPUMultiblockFeatures, HOGFeatures, LBPUMultiBlockAndHOGFeatures
 
 # This delta values are used to extract the images inside the big image
 
 TRAIN_DELTA = 28
 TEST_DELTA = 28
-LBP_BINS = 59   # LBPU
-
-radius = 3
-n_points = 8 * radius
 
 
 
@@ -77,21 +73,6 @@ def extract_images(img):
     return imgs
 
 """
-    This method extract the features used for classification
-"""
-
-
-def extract_features(img):
-    lbp = local_binary_pattern(img, n_points, radius, method='uniform')
-    lbp_hist, bin_edges = np.histogram(lbp, LBP_BINS)
-
-    # Histogram normalization    
-    lbp_hist_norm = sum(abs(lbp_hist))
-    lbp_hist_l1sqrtnorm = np.sqrt(lbp_hist/float(lbp_hist_norm))
-
-    return lbp_hist_l1sqrtnorm
-
-"""
     This function is used to train a model using a classifier
 """
 
@@ -112,8 +93,12 @@ def test_classifiers(train_path, test_path):
 
         # Extract features
         for x in imgs:
-            lbp = extract_features(x)
-            myfeat_train.append(lbp)
+            #tmp = LBPUFeatures(x)
+            #tmp = LBPUMultiblockFeatures(x)
+            #tmp = HOGFeatures(x)
+            tmp = LBPUMultiBlockAndHOGFeatures(x)
+            feat = tmp.getFeatures()
+            myfeat_train.append(feat)
             mylabel_train.append(i)
         
         print "Features obtained for train class", i
@@ -126,24 +111,23 @@ def test_classifiers(train_path, test_path):
 
         # Extract features
         for x in imgs:
-            lbp = extract_features(x)
-            myfeat_test.append(lbp)
+            #lbp = extract_features(x)
+            #tmp = LBPUMultiblockFeatures(x)
+            #tmp = HOGFeatures(x)
+            tmp = LBPUMultiBlockAndHOGFeatures(x)
+            feat = tmp.getFeatures()
+            myfeat_test.append(feat)
             mylabel_test.append(i)
         
         print "Features obtained for test class", i
 
     # Train
     # Create a classifier: a support vector classifier
-    svml = svm.LinearSVC()
-    rf = RandomForestClassifier(n_estimators=10, max_depth=None, min_samples_split=1, random_state=0)
+    svml = LinearSVC()
+    rf = RandomForestClassifier()
     gnb = GaussianNB()
     tr = tree.DecisionTreeClassifier()
-    knn = KNeighborsClassifier()
     dummy = DummyClassifier()
-
-    #print "Obtaining the cross validation groups ..."
-    # Cross validation
-    #X_train, X_test, y_train, y_test = cross_validation.train_test_split(myfeat, mylabel, test_size=0.3, random_state=0)
 
     print "Training ..."
     # Train
@@ -166,22 +150,13 @@ def test_classifiers(train_path, test_path):
     ttime.append(time.time()-tt)
 
     tt = time.time()
-    knn.fit(myfeat_train, mylabel_train)
-    ttime.append(time.time()-tt)
-
-    tt = time.time()
     dummy.fit(myfeat_train, mylabel_train)
     ttime.append(time.time()-tt)
 
     print "Classifying ..."
-    #expected = y_test
-    #predicted = classifier.predict(X_test)
 
-    #print("Classification report for classifier %s:\n%s\n" % (classifier, metrics.classification_report(expected, predicted)))
-    #print("Confusion matrix:\n%s" % metrics.confusion_matrix(expected, predicted))
-
-    names = ["Gaussian Naive Bayes", "Random Forest", "SVM", "Decision Tree", "K Nearest Neighbors", "Dummy (Baseline)"]
-    colors = ["r", "b", "g", "m", "y", "k"]
+    names = ["Gaussian Naive Bayes", "Random Forest", "SVM", "Decision Tree", "Dummy (Baseline)"]
+    colors = ["r", "b", "g", "m", "k"]
 
     scores = []
     ctime = []
@@ -202,19 +177,8 @@ def test_classifiers(train_path, test_path):
     ctime.append(time.time()-tt)
 
     tt = time.time()
-    scores.append(knn.score(myfeat_test, mylabel_test))
-    ctime.append(time.time()-tt)
-
-    tt = time.time()
     scores.append(dummy.score(myfeat_test, mylabel_test))
     ctime.append(time.time()-tt)
-
-    print "Score for Gaussian Naive Bayes classifier", scores[0]
-    print "Score for Random Forest classifier", scores[1]
-    print "Score for Support Vector Machine (Linear kernel) classifier", scores[2]
-    print "Score for Decision Tree classifier", scores[3]
-    print "Score for K Nearest Neighbors classifier", scores[4]
-    print "Score for Dummy (Baseline) classifier", scores[5]
     
     pt = PrettyTable(["Classifier", "Score", "Training time (s)", "Classifying time (s)", "Total time (s)"])
     
