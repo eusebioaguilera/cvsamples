@@ -12,7 +12,6 @@ We have test the following classifiers
 * Random Forest
 * SVM (Linear kernel)
 * Decision Tree
-* K Nearest Neighbors
 * Dummy: Baseline classifiers used as the baseline for comparing with others
 
 We use the database known as "MNIST Handwritten Digits" which is one the common
@@ -21,7 +20,9 @@ from http://cs.nyu.edu/~roweis/data.html.
 
 As the feature vector used for classification the Local Binary Pattern has been 
 used (Uniform patterns). The results are good but they could be improved by 
-applying the Multi-block LBP. 
+applying the Multi-block LBP. The results also get better if the feature HOG is
+used instead. Finally the best results could be obtained by applying a mix of
+features LBPUMultiblock+HOG.
 
 Requirements
 ========================================================
