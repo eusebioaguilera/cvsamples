@@ -2,24 +2,24 @@
 # -*- coding: utf-8 -*-
 #
 #  main.py
-#  
+#
 #  Copyright 2015 Eusebio Aguilera <eusebio.aguilera@gmail.com>
-#  
+#
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation; either version 2 of the License, or
 #  (at your option) any later version.
-#  
+#
 #  This program is distributed in the hope that it will be useful,
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU General Public License for more details.
-#  
+#
 #  You should have received a copy of the GNU General Public License
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
-#  
+#
 #
 
 __author__ = "Eusebio J. Aguilera Aguilera"
@@ -100,9 +100,9 @@ def test_classifiers(train_path, test_path):
             feat = tmp.getFeatures()
             myfeat_train.append(feat)
             mylabel_train.append(i)
-        
+
         print "Features obtained for train class", i
-    
+
     for i in range(10):
         fname = join(test_path, '%s.jpg' % str(i))
         img = io.imread(fname)
@@ -118,7 +118,7 @@ def test_classifiers(train_path, test_path):
             feat = tmp.getFeatures()
             myfeat_test.append(feat)
             mylabel_test.append(i)
-        
+
         print "Features obtained for test class", i
 
     # Train
@@ -179,9 +179,9 @@ def test_classifiers(train_path, test_path):
     tt = time.time()
     scores.append(dummy.score(myfeat_test, mylabel_test))
     ctime.append(time.time()-tt)
-    
+
     pt = PrettyTable(["Classifier", "Score", "Training time (s)", "Classifying time (s)", "Total time (s)"])
-    
+
     for i in range(len(names)):
         pt.add_row([names[i], scores[i], ttime[i], ctime[i], ttime[i]+ctime[i]])
 
@@ -195,7 +195,6 @@ def test_classifiers(train_path, test_path):
 
 
 def main():
-    
     current = os.path.dirname(os.path.abspath(__file__))
 
     train_path = join(current, 'dataset/train/')
